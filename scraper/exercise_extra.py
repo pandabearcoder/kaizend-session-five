@@ -1,6 +1,5 @@
 import requests
 import random
-from contextlib import contextmanager
 from time import sleep
 
 from bs4 import BeautifulSoup
@@ -18,26 +17,18 @@ PAGES = [
 ]
 
 
-class ScrapingJob:
+def debugger(func):
 
-    def __init__(self, url):
-        self.url = url
-        self.html = None
-        self.scraped_item = None
+    def wrapper(*args, **kwargs):
+        print(f'[START: {func.__name__}]')
+        output = func(*args, **kwargs)
+        print(f'[END: {func.__name__}]')
+        return output
 
-    def request(self):
-        print(f'Scraping {self.url}')
-        self.html = extract_html_content(self.url)
-        print(self.html)
-        return self
-
-    def extract(self):
-        target_value = extract_target_value_from_page(self.html)
-        print(target_value)
-        print('Done')
-        return target_value
+    return wrapper
 
 
+@debugger
 def delay(seconds):
     print(f'Sleeping for {seconds} second(s)')
     sleep(seconds)
@@ -47,33 +38,32 @@ def get_random_number():
     return random.randint(1, 5)
 
 
+@debugger
 def extract_html_content(target_url):
+    print(f'Downloading HTML contents of {target_url}')
     response = requests.get(target_url)
-    return response.text
+    output = response.text
+    print(output)
+    return output
 
 
+@debugger
 def extract_target_value_from_page(html_string):
     soup = BeautifulSoup(html_string, 'html.parser')
     target = soup.find(id='target')
     target_text = target.get_text()
+    print(target_text)
     return target_text
-
-
-@contextmanager
-def scraper(label):
-    job = ScrapingJob(label)
-    yield job
 
 
 def main():
     target_values = []
-
     for page in PAGES:
         target_url = BASE_URL + '/' + page
+        html = extract_html_content(target_url)
 
-        with scraper(target_url) as job:
-            value = job.request().extract()
-            target_values.append(value)
+        target_value = extract_target_value_from_page(html)
+        target_values.append(target_value)
 
         delay(get_random_number())
     else:
