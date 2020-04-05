@@ -58,7 +58,7 @@ def main():
         print('Done')
         delay(get_random_number())
     else:
-        print(', '.join(target_values))
+        print(f'[SCRAPED {len(target_values)} items]: ' + ', '.join(target_values))
 
 
 if __name__ == '__main__':
